@@ -96,6 +96,7 @@ const getAccount = (temp_apiKeys) => ({
                             name: faker.lorem.word(2),
                         },
                     ],
+                    state: "active"
                 },
             ],
         },

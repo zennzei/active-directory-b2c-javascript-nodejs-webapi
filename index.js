@@ -7,7 +7,8 @@ const {
 } = require("./generators");
 const { faker } = require("@faker-js/faker");
 const { getPaymentsInfo, generateToken, apiKey, wait, getAccount } = require("./helpers");
-const fileUpload = require('express-fileupload')
+const fileUpload = require('express-fileupload');
+const { add } = require("./generators/jobs");
 
 let temp_apiKeys = Array.from({ length: 3 }).map(_ => apiKey());
 
@@ -32,6 +33,28 @@ app.use(morgan("dev"));
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 },
 }));
+
+
+app.get(
+  "/accounts",
+  async (req, res) => {
+    // await wait(10);
+    res.status(200).send(getAccount(temp_apiKeys));
+    // res.status(200).json({ accounts: [] });
+    // res.status(401).send();
+    // res.status(500).send('error')
+  }
+);
+
+app.post(
+  "/accounts",
+  async (req, res) => {
+    // await wait(3);
+    // res.status(200).send(getAccount(temp_apiKeys));
+    // res.status(403).send();
+  }
+);
+
 
 app.post(
   "/api_keys",
@@ -58,16 +81,16 @@ app.delete(
   (req, res) => {
     console.log("delete /api_keys", req.params.api_key_id);
 
-    res.status(404).send('error')
+    // res.status(404).send('error')
 
 
-    /* temp_apiKeys = temp_apiKeys.filter(
+    temp_apiKeys = temp_apiKeys.filter(
       (key) => key.apikey_id != req.params.api_key_id
     );
 
     res.status(200).send({
       status: "ok",
-    }); */
+    });
   }
 );
 
@@ -80,16 +103,7 @@ app.get(
   }
 );
 
-app.get(
-  "/accounts",
-  async (req, res) => {
-    // await wait(15);
-    res.status(200).send(getAccount(temp_apiKeys));
-    // res.status(200).json({ accounts: [] });
-    // res.status(401).send();
-    // res.status(500).send('error')
-  }
-);
+
 
 app.get("/contracts/:contractId/payment_token", async (req, res) => {
   res.status(200).json({ payment_token: "payment_token" });
@@ -101,17 +115,10 @@ app.post("/contracts/:contractId/cards", async (req, res) => {
 })
 
 app.delete("/contracts/:contractId/cards", async (req, res) => {
-  res.status(200).json({});
+  res.status(403).json({});
 })
 
 
-app.post(
-  "/accounts",
-  async (req, res) => {
-    res.status(200).send(getAccount(temp_apiKeys));
-    // res.status(403).send();
-  }
-);
 
 app.get("/payments", (req, res) => {
   // res.status(401).send("<html><body>unauthorized</body></html>")
@@ -129,12 +136,23 @@ app.post("/jobs_key", (req, res) => {
 })
 
 app.get("/jobs", (req, res) => {
+  /* res.send({
+    jobs: []
+  }) */
   res.send({
     jobs: jobs.list(req.query)
   })
 })
 
 app.post("/jobs", async (req, res) => {
+
+  /* await wait(5);
+  res.status(400).send({
+    "code": 400,
+    "detail": "account is not allowed to create a job at the moment: This request would exceed your limit for Enhanced Model transcription in the current month. Your limit is 2 hours.",
+    "error": "Forbidden"
+  }) */
+
   try {
     const newId = jobs.add()
     // await wait(30);
@@ -142,6 +160,7 @@ app.post("/jobs", async (req, res) => {
   } catch (error) {
     res.status(error.status ? error.status : 500).send(error.message)
   }
+
   /* res.status(403).send({
     "code": 403,
     "detail": "account is not allowed to create a job at the moment: This request would exceed your limit for Enhanced Model transcription in the current month. Your limit is 2 hours.",
@@ -161,12 +180,13 @@ app.get("/jobs/:jobId", (req, res) => {
 })
 
 app.delete("/jobs/:jobId", (req, res) => {
-  try {
+  res.status(404).send({ code: 404, message: "No job with id: " + req.params.jobId })
+  /* try {
     jobs.deleteById(req.params.jobId)
     res.status(200).send({ id: req.params.jobId })
   } catch (error) {
     res.status(error.status ? error.status : 500).send(error.message)
-  }
+  } */
 })
 
 app.get("/jobs/:jobId/transcript", (req, res) => {
