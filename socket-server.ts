@@ -26,7 +26,7 @@ class TranscriptGenerator {
       metadata: {
         transcript: faker.lorem.word(10),
       },
-      results: Array.from({ length: rr(1, 4) }, (_) => {
+      results: Array.from({ length: rr(3, 8) }, (_) => {
         const { changed, speakerId } = this.speakerChange();
         return {
           type: changed
@@ -84,6 +84,7 @@ function originIsAllowed(origin: string) {
 }
 
 wsServer.on("request", function (request) {
+  console.log("request", request);
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
     request.reject();
@@ -93,7 +94,7 @@ wsServer.on("request", function (request) {
     return;
   }
 
-  const connection = request.accept("rt", request.origin);
+  const connection = request.accept();
   console.log(new Date() + " Connection accepted.");
 
   let recognitionRunning = false;
@@ -134,11 +135,16 @@ wsServer.on("request", function (request) {
         case MessageType.END_OF_STREAM:
           setTimeout(() => {
             recognitionRunning = false;
+            connection.sendUTF(
+              JSON.stringify({
+                message: MessageType.END_OF_TRANSCRIPT,
+              })
+            );
           }, 2000);
           break;
       }
     } else if (message.type === "binary") {
-      if (r(0.01)) connection.sendUTF(JSON.stringify(gen.generate()));
+      connection.sendUTF(JSON.stringify(gen.generate()));
     }
   });
   connection.on("close", function (reasonCode, description) {
