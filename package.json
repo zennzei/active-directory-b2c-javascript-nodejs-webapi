@@ -8,12 +8,13 @@
     "node": ">=6.9.1"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "concurrently \"node index.js\" \"npx ts-node socket-server.ts\"",
     "start-local": "node -r dotenv/config index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
     "@faker-js/faker": "^6.3.1",
+    "concurrently": "^7.3.0",
     "cors": "^2.8.5",
     "dotenv": "^14.2.0",
     "express": "^4.14.0",
