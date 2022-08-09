@@ -8,15 +8,16 @@
     "node": ">=6.9.1"
   },
   "scripts": {
-    "start": "concurrently \"node index.js\" \"npx ts-node socket-server.ts\"",
+    "start": "concurrently \"node index.js\" \"npx ts-node -r dotenv/config socket-server.ts\"",
     "start-local": "node -r dotenv/config index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "dev-socket": "npx ts-node -r dotenv/config socket-server.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^6.3.1",
     "concurrently": "^7.3.0",
     "cors": "^2.8.5",
-    "dotenv": "^14.2.0",
+    "dotenv": "^14.3.2",
     "express": "^4.14.0",
     "express-fileupload": "^1.3.1",
     "morgan": "^1.7.0",

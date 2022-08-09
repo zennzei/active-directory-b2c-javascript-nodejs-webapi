@@ -2,7 +2,9 @@
 
 import { server as WebSocketServer } from "websocket";
 import http from "http";
+import https from "https";
 import faker from "@faker-js/faker";
+import fs from "fs";
 
 class TranscriptGenerator {
   speakerId = 0;
@@ -59,14 +61,35 @@ class TranscriptGenerator {
 
 const gen = new TranscriptGenerator();
 
-const server = http.createServer(function (request, response) {
-  console.log(new Date() + " Received request for " + request.url);
-  response.writeHead(404);
-  response.end();
-});
-server.listen(8080, function () {
-  console.log(new Date() + " Server is listening on port 8080");
-});
+let server;
+
+if (process.env.IS_LOCAL) {
+  server = http.createServer(function (request, response) {
+    console.log(new Date() + " Received request for " + request.url);
+    response.writeHead(404);
+    response.end();
+  });
+
+  server.listen(8080, function () {
+    console.log(new Date() + " Server is listening on port 8080");
+  });
+} else {
+  server = https.createServer(
+    {
+      key: fs.readFileSync(
+        "/etc/letsencrypt/live/debby.zennzei2.p5.tiktalik.io/privkey.pem"
+      ),
+      cert: fs.readFileSync(
+        "/etc/letsencrypt/live/debby.zennzei2.p5.tiktalik.io/fullchain.pem"
+      ),
+    },
+    function (request, response) {
+      console.log(new Date() + " Received request for " + request.url);
+      response.writeHead(404);
+      response.end();
+    }
+  );
+}
 
 const wsServer = new WebSocketServer({
   httpServer: server,
