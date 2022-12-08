@@ -199,7 +199,7 @@ app.get("/v1/jobs/:jobId/transcript", (req, res) => {
 })
 
 
-
+const API_VERSION = "0.0.1"
 // connectors debug 
 app.post("/signUpConnector", (req, res) => {
   console.log("/signUpConnector", req);
