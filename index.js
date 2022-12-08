@@ -36,7 +36,7 @@ app.use(fileUpload({
 
 
 app.get(
-  "/accounts",
+  "/v1/accounts",
   async (req, res) => {
     // await wait(10);
     res.status(200).send(getAccount(temp_apiKeys));
@@ -47,21 +47,18 @@ app.get(
 );
 
 app.post(
-  "/accounts",
+  "/v1/accounts",
   async (req, res) => {
     // await wait(3);
-    // res.status(200).send(getAccount(temp_apiKeys));
+    res.status(200).send(getAccount(temp_apiKeys));
     // res.status(403).send();
   }
 );
 
 
 app.post(
-  "/api_keys",
+  "/v1/api_keys",
   async (req, res) => {
-
-    // res.status(403).send('error')
-
 
     console.log("/api_keys");
     const apikeyId = generateToken();
@@ -71,13 +68,13 @@ app.post(
 
     res.status(200).send({
       apikey_id: apikeyId,
-      key_value: faker.datatype.string(40),
+      key_value: faker.random.alpha(40),
     });
   }
 );
 
 app.delete(
-  "/api_keys/:api_key_id",
+  "/v1/api_keys/:api_key_id",
   (req, res) => {
     console.log("delete /api_keys", req.params.api_key_id);
 
@@ -95,7 +92,7 @@ app.delete(
 );
 
 app.get(
-  "/usage",
+  "/v1/usage",
   (req, res) => {
 
     const sampleUsageData = usage.aggregate(req.query.since, req.query.until)
@@ -105,22 +102,22 @@ app.get(
 
 
 
-app.get("/contracts/:contractId/payment_token", async (req, res) => {
+app.get("/v1/contracts/:contractId/payment_token", async (req, res) => {
   res.status(200).json({ payment_token: "payment_token" });
 
 })
 
-app.post("/contracts/:contractId/cards", async (req, res) => {
+app.post("/v1/contracts/:contractId/cards", async (req, res) => {
   res.status(200).json({});
 })
 
-app.delete("/contracts/:contractId/cards", async (req, res) => {
+app.delete("/v1/contracts/:contractId/cards", async (req, res) => {
   res.status(403).json({});
 })
 
 
 
-app.get("/payments", (req, res) => {
+app.get("/v1/payments", (req, res) => {
   // res.status(401).send("<html><body>unauthorized</body></html>")
   res.status(200).json({ ...getPaymentsInfo() });
   // res.status(500).text("error")
@@ -131,11 +128,11 @@ app.get("/payments", (req, res) => {
 
 app.get("/", (req, res) => res.send({ message: "hello", date: new Date(), date: process.env.TEST_ENV_VAR }));
 
-app.post("/jobs_key", (req, res) => {
+app.post("/v1/jobs_key", (req, res) => {
   res.send({ key: "key" })
 })
 
-app.get("/jobs", (req, res) => {
+app.get("/v1/jobs", (req, res) => {
   /* res.send({
     jobs: []
   }) */
@@ -144,7 +141,7 @@ app.get("/jobs", (req, res) => {
   })
 })
 
-app.post("/jobs", async (req, res) => {
+app.post("/v1/jobs", async (req, res) => {
 
   /* await wait(5);
   res.status(400).send({
@@ -168,7 +165,7 @@ app.post("/jobs", async (req, res) => {
   }) */
 })
 
-app.get("/jobs/:jobId", (req, res) => {
+app.get("/v1/jobs/:jobId", (req, res) => {
   const job = jobs.getById(req.params.jobId)
   if (job == null) {
     res.status(404).send({ code: 404, message: "No job with id: " + req.params.jobId })
@@ -179,7 +176,7 @@ app.get("/jobs/:jobId", (req, res) => {
   }
 })
 
-app.delete("/jobs/:jobId", (req, res) => {
+app.delete("/v1/jobs/:jobId", (req, res) => {
   res.status(404).send({ code: 404, message: "No job with id: " + req.params.jobId })
   /* try {
     jobs.deleteById(req.params.jobId)
@@ -189,7 +186,7 @@ app.delete("/jobs/:jobId", (req, res) => {
   } */
 })
 
-app.get("/jobs/:jobId/transcript", (req, res) => {
+app.get("/v1/jobs/:jobId/transcript", (req, res) => {
   const job = jobs.getById(req.params.jobId)
   if (job == null) {
     res.status(404).send({ code: 404, message: "No job with id: " + req.params.jobId })
@@ -200,6 +197,27 @@ app.get("/jobs/:jobId/transcript", (req, res) => {
   }
 
 })
+
+
+
+// connectors debug 
+app.post("/signUpConnector", (req, res) => {
+  console.log("/signUpConnector", req);
+  res.send({ version: API_VERSION, action: "Continue" });
+});
+
+app.post("/beforeCreatingUserConnector", async (req, res) => {
+
+  console.log("/beforeCreatingUserConnector", req);
+  res.send({ version: API_VERSION, action: "Continue" });
+
+});
+
+app.post("/beforeAppClaimsConnector", (req, res) => {
+  console.log("/beforeAppClaimsConnector", req);
+  res.send({ version: API_VERSION, action: "Continue" });
+});
+
 
 
 const port = process.env.PORT || 4444;

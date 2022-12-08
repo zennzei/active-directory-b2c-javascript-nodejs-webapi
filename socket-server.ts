@@ -107,10 +107,15 @@ function originIsAllowed(origin: string) {
 }
 
 wsServer.on("request", function (request) {
-  console.log("request", request);
+  // console.log("request", request);
+
+  // request.reject(403, "reject reason", { testHeader: "test1" });
+  // return;
+
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
-    request.reject();
+    request.reject(403, "reject reason", { testHeader: "test1" });
+
     console.log(
       new Date() + " Connection from origin " + request.origin + " rejected."
     );
@@ -119,8 +124,6 @@ wsServer.on("request", function (request) {
 
   const connection = request.accept();
   console.log(new Date() + " Connection accepted.");
-
-  let recognitionRunning = false;
 
   connection.on("message", function (message) {
     if (message.type === "utf8") {
@@ -135,7 +138,6 @@ wsServer.on("request", function (request) {
               message: MessageType.RECOGNITION_STARTED,
             })
           );
-          recognitionRunning = true;
           console.log("MessageType.START_RECOGNITION");
           break;
 
@@ -157,7 +159,6 @@ wsServer.on("request", function (request) {
 
         case MessageType.END_OF_STREAM:
           setTimeout(() => {
-            recognitionRunning = false;
             connection.sendUTF(
               JSON.stringify({
                 message: MessageType.END_OF_TRANSCRIPT,

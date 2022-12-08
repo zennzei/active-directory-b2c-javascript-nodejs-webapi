@@ -8,10 +8,12 @@
     "node": ">=6.9.1"
   },
   "scripts": {
-    "start": "concurrently \"node index.js\" \"npx ts-node -r dotenv/config socket-server.ts\"",
+    "start": "node index.js",
+    "start-both": "concurrently \"node index.js\" \"npx ts-node -r dotenv/config socket-server.ts\"",
     "start-local": "node -r dotenv/config index.js",
     "dev": "nodemon index.js",
-    "dev-socket": "npx ts-node -r dotenv/config socket-server.ts"
+    "dev-socket": "npx ts-node -r dotenv/config socket-server.ts",
+    "dev-all": "concurrently \"nodemon index.js\" \"nodemon -r dotenv/config socket-server.ts\""
   },
   "dependencies": {
     "@faker-js/faker": "^6.3.1",

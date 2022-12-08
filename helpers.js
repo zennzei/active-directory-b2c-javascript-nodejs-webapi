@@ -47,7 +47,7 @@ const getPaymentsInfo = () => {
 const pad = (n) => n.toString().padStart(2, "0");
 
 const generateToken = () =>
-    (Math.random() * 99999999999999999).toString(36).repeat(2);
+    faker.random.alpha(16);
 
 const apiKey = (id = "", name = "") => ({
     apikey_id: id || generateToken(),
@@ -72,7 +72,8 @@ const getAccount = (temp_apiKeys) => ({
             contracts: [
                 {
                     contract_id: 0,
-                    runtime_url: "https://runtime-url.speechmatics.test",
+                    runtime_url: "http://localhost:4444",
+                    rt_runtime_url: "ws://localhost:8080",
                     payment_method: {
                         card_type: "visa",
                         masked_card_number: "XXXX XXXX XXXX 2132",
